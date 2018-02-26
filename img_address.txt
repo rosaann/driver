@@ -3,3 +3,26 @@ pip install kaggle-cli
 
 kg download -u 147429240@qq.com -p mnbvcxz -c state-farm-distracted-driver-detection -f imgs.zip
 downloading https://www.kaggle.com/c/state-farm-distracted-driver-detection/download/imgs.zip
+
+
+import pandas as pd
+import cv2
+def test_model():
+    df = pd.read_csv("sample_submission.csv")
+    
+    test_filenames = os.listdir('imgs/test')
+    X = np.zeros((len(test_filenames), 64, 64, 3), dtype=np.uint8)
+
+    for i, test_file in enumerate(test_filenames) :
+        X[i] = cv2.resize(cv2.imread('imgs/test/' + test_file), (64, 64))
+    
+    y_pred = model.predict(X, batch_size=64, verbose=0)
+    
+    for i, fname in enumerate(test_generator.filenames):
+        index = int(fname[fname.rfind('/')+1:fname.rfind('.')])
+        df.set_value(index-1, 'label', y_pred[i])
+
+    df.to_csv('pred.csv', index=None)
+    df.head(10)
+    
+test_model()
